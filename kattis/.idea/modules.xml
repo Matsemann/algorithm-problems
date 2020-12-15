@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../adventofcode/adventofcode.iml" filepath="$PROJECT_DIR$/../adventofcode/adventofcode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kattis.iml" filepath="$PROJECT_DIR$/kattis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../kattisjava/kattisjava.iml" filepath="$PROJECT_DIR$/../kattisjava/kattisjava.iml" />
+    </modules>
+  </component>
+</project>
