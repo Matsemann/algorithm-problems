@@ -126,7 +126,7 @@ class Runner {
     }
     @Test
     fun day10_2Runner() {
-        val lines = getFileLines("inputs/day10_example.txt").toList()
+        val lines = getFileLines("inputs/day10_1.txt").toList()
         day10_2(lines)
     }
 

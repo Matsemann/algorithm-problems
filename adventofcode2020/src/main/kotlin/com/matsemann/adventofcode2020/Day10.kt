@@ -30,14 +30,16 @@ fun day10_2(lines: List<String>,) {
         .plus(numbers.last() + 3)
         .sorted()
 
-    val counts = mutableMapOf<Int, Int>()
-    counts[0] = 1
+    val counts = mutableMapOf<Int, BigInteger>()
+    counts[0] = BigInteger.ONE
 
     adaptors.forEach {
-        val sum = (counts[it - 3] ?: 0) + (counts[it - 2] ?: 0) + (counts[it-1] ?: 0)
+        val sum = (counts[it - 3] ?: BigInteger.ZERO) + (counts[it - 2] ?: BigInteger.ZERO) + (counts[it-1] ?: BigInteger.ZERO)
         counts[it] = sum
     }
-    println()
+
+    val ways = counts.maxOf { it.value }
+    println("ways: $ways")
 
 
     /*
