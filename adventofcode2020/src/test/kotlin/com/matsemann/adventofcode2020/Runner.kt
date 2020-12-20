@@ -130,6 +130,19 @@ class Runner {
         day10_2(lines)
     }
 
+    @Test
+    fun day11_1Runner() {
+        val lines = getFileLines("inputs/day11_1.txt").toList()
+        day11_1(lines)
+    }
+
+
+    @Test
+    fun day12_1Runner() {
+        val lines = getFileLines("inputs/day12_1.txt").toList()
+        day12_1(lines)
+    }
+
 
 
     fun getFileScanner(fileName: String) =
