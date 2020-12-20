@@ -144,6 +144,13 @@ class Runner {
     }
 
 
+    @Test
+    fun day13_1Runner() {
+        val lines = getFileLines("inputs/day13_1.txt").toList()
+        day13_1(lines)
+    }
+
+
 
     fun getFileScanner(fileName: String) =
         Scanner(FileInputStream(fileName))
