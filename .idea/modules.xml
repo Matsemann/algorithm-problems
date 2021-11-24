@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/adventofcode2020/adventofcode2020.iml" filepath="$PROJECT_DIR$/adventofcode2020/adventofcode2020.iml" />
+      <module fileurl="file://$PROJECT_DIR$/adventofcode2021/adventofcode2021.iml" filepath="$PROJECT_DIR$/adventofcode2021/adventofcode2021.iml" />
       <module fileurl="file://$PROJECT_DIR$/kattis/kattis.iml" filepath="$PROJECT_DIR$/kattis/kattis.iml" />
       <module fileurl="file://$PROJECT_DIR$/kattisjava/kattisjava.iml" filepath="$PROJECT_DIR$/kattisjava/kattisjava.iml" />
     </modules>
