@@ -59,7 +59,7 @@ enum class Direction(var x: Int, var y: Int) {
         }
 
     fun flip() =
-        when(this) {
+        when (this) {
             RIGHT -> LEFT
             LEFT -> RIGHT
             UP -> DOWN
@@ -103,15 +103,15 @@ data class Vec2d(val x: Double, val y: Double) {
     operator fun times(factor: Double) = Vec2d(x * factor, y * factor)
 
     fun manhattan(other: Vec2d) = abs(x - other.x) + abs(y - other.y)
-    fun dst(other: Vec2d) = sqrt( (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
+    fun dst(other: Vec2d) = sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
     fun len() = dst(zero)
     fun norm() = times(1 / len())
     fun dot(other: Vec2d) = x * other.x + y * other.y
     fun cross(other: Vec2d) = x * y - y * x
 
-    fun isPerpendicular(other: Vec2d)  = abs(dot(other)) < 0.000001
-    fun hasSameDirection(other: Vec2d)  = dot(other) > 0.0
-    fun hasOppositeDirection(other: Vec2d)  = dot(other) < 0.0
+    fun isPerpendicular(other: Vec2d) = abs(dot(other)) < 0.000001
+    fun hasSameDirection(other: Vec2d) = dot(other) > 0.0
+    fun hasOppositeDirection(other: Vec2d) = dot(other) < 0.0
 
     companion object {
         val zero = Vec2d(0.0, 0.0)
@@ -160,6 +160,75 @@ data class IntVec(val x: Int, val y: Int) {
             return IntVec(split[0].toInt(), split[1].toInt())
         }
 
-        fun String.toIntVec(delim: String = ",")  = fromStr(this, delim)
+        fun String.toIntVec(delim: String = ",") = fromStr(this, delim)
+
+    }
+}
+
+operator fun <E> List<List<E>>.get(intVec: IntVec) = this[intVec.y][intVec.x]
+operator fun <E> List<MutableList<E>>.set(intVec: IntVec, value: E) {
+    this[intVec.y][intVec.x] = value
+}
+
+fun <E> permutations(list: List<E>, length: Int? = null): Sequence<List<E>> = sequence {
+    val n = list.size
+    val r = length ?: list.size
+
+    val indices = list.indices.toMutableList()
+    val cycles = (n downTo (n - r)).toMutableList()
+    yield(indices.take(r).map { list[it] })
+
+    while (true) {
+        var broke = false
+        for (i in (r - 1) downTo 0) {
+            cycles[i]--
+            if (cycles[i] == 0) {
+                val end = indices[i]
+                for (j in i until indices.size - 1) {
+                    indices[j] = indices[j + 1]
+                }
+                indices[indices.size - 1] = end
+                cycles[i] = n - i
+            } else {
+                val j = cycles[i]
+                val tmp = indices[i]
+                indices[i] = indices[-j + indices.size]
+                indices[-j + indices.size] = tmp
+                yield(indices.take(r).map { list[it] })
+                broke = true
+                break
+            }
+        }
+        if (!broke) {
+            break
+        }
+    }
+}
+
+fun <E, F> cartesian(list1: List<E>, list2: List<F>): Sequence<Pair<E, F>> =
+    cartesian(listOf(list1, list2)).map { it[0] as E to it[1] as F }
+
+fun <E, F, G> cartesian(list1: List<E>, list2: List<F>, list3: List<G>): Sequence<Triple<E, F, G>> =
+    cartesian(listOf(list1, list2, list3)).map { Triple(it[0] as E, it[1] as F, it[2] as G) }
+
+fun <E> cartesian(lists: List<List<E>>): Sequence<List<E>> {
+    return sequence {
+        val counters = Array(lists.size) { 0 }
+        val length = lists.fold(1) { acc, list -> acc * list.size }
+
+        for (i in 0 until length) {
+            val result = lists.mapIndexed { index, list ->
+                list[counters[index]]
+            }
+            yield(result)
+            for (pointer in lists.size - 1 downTo 0) {
+                counters[pointer]++
+                if (counters[pointer] == lists[pointer].size) {
+                    counters[pointer] = 0
+                } else {
+                    break
+                }
+            }
+        }
     }
 }
