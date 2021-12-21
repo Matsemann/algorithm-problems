@@ -57,9 +57,6 @@ fun day10_2(lines: List<String>): Any {
 
 }
 
-operator fun BigInteger.times(other: Int): BigInteger = this.multiply(other.toBigInteger())
-operator fun BigInteger.plus(other: Int): BigInteger = this.add(other.toBigInteger())
-
 
 fun main() {
 //    run("1", fileName = "day10_ex.txt", func = ::day10_1)

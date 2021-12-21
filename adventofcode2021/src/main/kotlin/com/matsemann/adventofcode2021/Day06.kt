@@ -3,39 +3,29 @@ package com.matsemann.adventofcode2021
 fun solve(lines: List<String>, days: Int): Any {
     // Solves it in linear time ( O(days) ) by only keeping
     // count of totals, not modeling each fish
-    var state = Array(9) { 0.toBigInteger() }
+    val state = Counter<Int>()
 
     lines.first()
         .split(",")
         .map { it.toInt() }
         .forEach { state[it]++ }
 
-
     for (d in 1..days) {
-        val nextState = Array(9) { 0.toBigInteger() }
-
-
-        for (i in nextState.indices) {
-            val fish = state[i]
-
-            if (i == 0) {
-                nextState[8] += fish
-                nextState[6] += fish
-            } else {
-                nextState[i-1] += fish
-            }
+        val newFishes = state[0]
+        for (i in 0..7) {
+            state[i] = state[i+1]
         }
-
-        state = nextState
+        state[8] = newFishes
+        state[6] += newFishes
     }
 
-    return state.sumOf { it }
+    return state.values.sumOf { it }
 }
 
 
 
 fun main() {
-    for (i in 0..100) {
+    for (i in 0..1) {
         run("1", fileName = "day06_1.txt") {
             solve(it, 80)
         }

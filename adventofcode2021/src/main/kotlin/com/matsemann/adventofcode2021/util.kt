@@ -2,12 +2,10 @@ package com.matsemann.adventofcode2021
 
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 
 
 fun getFileLines(fileName: String) =
@@ -32,6 +30,35 @@ fun <T> measure(func: () -> T): T {
     return func().also {
         val time = System.currentTimeMillis() - start
         println("Done. Took ${time}ms to run")
+    }
+}
+
+class Cached<I1, O>(val func: Cached<I1, O>.(I1) -> O) {
+    private val cache = mutableMapOf<I1, O>()
+
+    operator fun invoke(i: I1): O {
+        return if (i in cache) {
+            cache[i]!!
+        } else {
+            this.func(i).also {
+                cache[i] = it
+            }
+        }
+    }
+}
+
+class Cached2<I1, I2, O>(val func: Cached2<I1, I2, O>.(I1, I2) -> O) {
+    private val cache = mutableMapOf<Pair<I1, I2>, O>()
+
+    operator fun invoke(i1: I1, i2: I2): O {
+        val key = i1 to i2
+        return if (key in cache) {
+            cache[key]!!
+        } else {
+            this.func(i1, i2).also {
+                cache[key] = it
+            }
+        }
     }
 }
 
@@ -135,6 +162,9 @@ data class IntVec(val x: Int, val y: Int) {
 
     fun asDir() = IntVec(x.sign, y.sign)
 
+    fun mirrorX(axis: Int = 0) = IntVec(axis - (x - axis), y)
+    fun mirrorY(axis: Int = 0) = IntVec(x, axis - (y - axis))
+
     // Note, it is inclusive, so for indexing reduce with 1
     fun withinBounds(bounds: IntVec) = withinBounds(0, bounds.x, 0, bounds.y)
     fun withinBounds(minX: Int, maxX: Int, minY: Int, maxY: Int) =
@@ -162,12 +192,94 @@ data class IntVec(val x: Int, val y: Int) {
 
         fun String.toIntVec(delim: String = ",") = fromStr(this, delim)
 
+        /**
+         * Calculates the min and max of x and y for all the vectors
+         */
+        fun Iterable<IntVec>.bounds() = this.fold(
+            listOf(
+                Int.MAX_VALUE,
+                Int.MIN_VALUE,
+                Int.MAX_VALUE,
+                Int.MIN_VALUE
+            )
+        ) { acc, vec ->
+            listOf(
+                min(acc[0], vec.x),
+                max(acc[1], vec.x),
+                min(acc[2], vec.y),
+                max(acc[3], vec.y)
+            )
+        }
+
+        fun Iterable<IntVec>.showAsGrid(char: Char = fullBlock): String {
+            val (minX, maxX, minY, maxY) = this.bounds()
+            return this.showAsGrid(minX..maxX, minY..maxY, char)
+        }
+
+        fun Iterable<IntVec>.showAsGrid(xRange: IntRange, yRange: IntRange, char: Char = fullBlock): String {
+            return yRange.joinToString("\n") { y ->
+                xRange.joinToString("") { x ->
+                    if (IntVec(x, y) in this) {
+                        char.toString()
+                    } else {
+                        " "
+                    }
+                }
+            }
+        }
+
     }
+}
+
+data class Rectangle(val pos1: IntVec, val pos2: IntVec) {
+
+    operator fun contains(vec: IntVec): Boolean {
+        return vec.x in pos1.x..pos2.x && vec.y in pos1.y..pos2.y
+    }
+
+    // Whether the rectangle is to the side of the point
+    fun isBelow(y: Int) = y > pos2.y
+    fun isAbove(y: Int) = y < pos1.y
+    fun isRightOf(x: Int) = x < pos1.x
+    fun isLeftOf(x: Int) = pos2.x < x
+
+    // The point to the rectangle
+    fun pointIsBelow(y: Int) = y < pos1.y
+    fun pointIsAbove(y: Int) = y > pos2.y
+    fun pointIsRightOf(x: Int) = pos2.x < x
+    fun pointIsLeftOf(x: Int) = x < pos1.x
+
+    companion object {
+        fun fromNumbers(x1: Int, y1: Int, x2: Int, y2: Int): Rectangle {
+            // Sorts them so bottom left corner is pos1
+            val xs = listOf(x1, x2).sorted()
+            val ys = listOf(y1, y2).sorted()
+            return Rectangle(
+                IntVec(xs[0], ys[0]),
+                IntVec(xs[1], ys[1])
+            )
+        }
+
+        fun fromVecs(vec1: IntVec, vec2: IntVec): Rectangle {
+            return fromNumbers(vec1.x, vec1.y, vec2.x, vec2.y)
+        }
+    }
+
 }
 
 operator fun <E> List<List<E>>.get(intVec: IntVec) = this[intVec.y][intVec.x]
 operator fun <E> List<MutableList<E>>.set(intVec: IntVec, value: E) {
     this[intVec.y][intVec.x] = value
+}
+
+fun <E> List<E>.rotate(num: Int): List<E> {
+    return if (num >= 0) {
+        val n = num % this.size
+        this.drop(n) + this.take(n)
+    } else {
+        val n = -num % this.size
+        this.takeLast(n) + this.dropLast(n)
+    }
 }
 
 fun <E> permutations(list: List<E>, length: Int? = null): Sequence<List<E>> = sequence {
@@ -232,3 +344,111 @@ fun <E> cartesian(lists: List<List<E>>): Sequence<List<E>> {
         }
     }
 }
+
+
+inline operator fun BigInteger.times(other: Int): BigInteger = this * other.toBigInteger()
+inline operator fun BigInteger.plus(other: Int) = this + other.toBigInteger()
+inline operator fun BigInteger.minus(other: Int): BigInteger = this - other.toBigInteger()
+
+
+class Counter<K>(val map: MutableMap<K, BigInteger>) : MutableMap<K, BigInteger> by map {
+    constructor() : this(mutableMapOf())
+
+    override operator fun get(key: K): BigInteger {
+        return map.getOrDefault(key, BigInteger.ZERO)
+    }
+
+    operator fun plus(other: Counter<K>): Counter<K> {
+        val newMap = map.toMutableMap()
+        other.forEach { (k, v) ->
+            newMap.merge(k, v, BigInteger::plus)
+        }
+        return Counter(newMap)
+    }
+
+    operator fun plusAssign(other: Counter<K>) {
+        other.forEach { (k, v) ->
+            map.merge(k, v, BigInteger::plus)
+        }
+    }
+
+    operator fun minus(other: Counter<K>): Counter<K> {
+        val newMap = map.toMutableMap()
+        other.forEach { (k, v) ->
+            newMap.merge(k, -v, BigInteger::plus)
+        }
+        return Counter(newMap)
+    }
+
+    fun copy(): Counter<K> {
+        return Counter(map.toMutableMap())
+    }
+
+    companion object {
+        fun Counter<Char>.addLetters(str: String) {
+            this += fromLetters(str)
+        }
+
+        fun fromLetters(str: String): Counter<Char> {
+            return fromList(str.toList())
+        }
+
+        fun <E> fromList(list: List<E>): Counter<E> {
+            return Counter(
+                list.groupingBy { it }
+                    .eachCount()
+                    .mapValues { it.value.toBigInteger() }
+                    .toMutableMap()
+            )
+        }
+
+    }
+}
+
+class Parse {
+    companion object {
+        fun allInts(line: String): List<Int> {
+            return """-?\d+""".toRegex().findAll(line)
+                .map { it.value.toInt() }
+                .toList()
+        }
+
+    }
+}
+
+fun String.allInts() = Parse.allInts(this)
+
+
+interface Graph {
+
+}
+
+class DirectedGraph() : Graph {
+
+    fun addEdge() {
+        // Updates if existing
+    }
+
+    fun addMultiEdge() {
+        // Allows more between same
+    }
+
+    fun addEdgeBothWays() {
+
+    }
+
+    fun addNode() {
+
+    }
+
+    fun convertToAdjacentGraph() {
+        // ?
+    }
+}
+
+class Dijkstra() {}
+class AStar() {}
+class FloydWarshall() {}
+
+
+val fullBlock = '█'
