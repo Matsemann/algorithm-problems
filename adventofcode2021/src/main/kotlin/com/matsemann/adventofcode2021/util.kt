@@ -282,6 +282,11 @@ fun <E> List<E>.rotate(num: Int): List<E> {
     }
 }
 
+operator fun <E> Int.times(list: List<E>): List<List<E>> {
+    val lists = Array(this) { list}
+    return listOf(*lists)
+}
+
 fun <E> permutations(list: List<E>, length: Int? = null): Sequence<List<E>> = sequence {
     val n = list.size
     val r = length ?: list.size
@@ -345,10 +350,19 @@ fun <E> cartesian(lists: List<List<E>>): Sequence<List<E>> {
     }
 }
 
+inline fun Int.big() = this.toBigInteger()
 
 inline operator fun BigInteger.times(other: Int): BigInteger = this * other.toBigInteger()
 inline operator fun BigInteger.plus(other: Int) = this + other.toBigInteger()
 inline operator fun BigInteger.minus(other: Int): BigInteger = this - other.toBigInteger()
+
+/**
+ * Mod starts at 1 and goes to max,
+ * (instead of 0 and to max-1)
+ */
+infix fun Int.mod1To(max: Int): Int {
+    return (this - 1) % max + 1
+}
 
 
 class Counter<K>(val map: MutableMap<K, BigInteger>) : MutableMap<K, BigInteger> by map {
@@ -407,7 +421,7 @@ class Counter<K>(val map: MutableMap<K, BigInteger>) : MutableMap<K, BigInteger>
 
 class Parse {
     companion object {
-        fun allInts(line: String): List<Int> {
+        fun allIntsInString(line: String): List<Int> {
             return """-?\d+""".toRegex().findAll(line)
                 .map { it.value.toInt() }
                 .toList()
@@ -416,7 +430,7 @@ class Parse {
     }
 }
 
-fun String.allInts() = Parse.allInts(this)
+fun String.allInts() = Parse.allIntsInString(this)
 
 
 interface Graph {

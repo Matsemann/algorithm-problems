@@ -58,9 +58,8 @@ fun day15_2(lines: List<String>): Any {
             .flatMapIndexed { x, cost ->
                 (0..4).flatMap { y1 ->
                     (0..4).map { x1 ->
-                        val newCost = (cost.toInt() + y1 + x1)
-                        val newNewCost = if (newCost >= 10) (newCost + 1) % 10 else newCost
-                        IntVec(x + x1 * bounds.x, y1 * bounds.y + y) to newNewCost
+                        val newCost = (cost.toInt() + y1 + x1) mod1To 9
+                        IntVec(x + x1 * bounds.x, y1 * bounds.y + y) to newCost
                     }
                 }
             }
