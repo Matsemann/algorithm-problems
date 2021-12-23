@@ -3,14 +3,14 @@ package com.matsemann.adventofcode2021
 import java.util.*
 import kotlin.math.abs
 
-val hallwayStops = listOf(0, 1, 3, 5, 7, 9, 10)
-val doors = listOf(2, 4, 6, 8)
-val room1 = listOf(11, 12, 13, 14)
-val room2 = listOf(21, 22, 23, 24)
-val room3 = listOf(31, 32, 33, 34)
-val room4 = listOf(41, 42, 43, 44)
-val rooms = listOf(room1, room2, room3, room4)
-val costs = listOf(1, 10, 100, 1000)
+    val hallwayStops = listOf(0, 1, 3, 5, 7, 9, 10)
+    val doors = listOf(2, 4, 6, 8)
+    val room1 = listOf(11, 12, 13, 14)
+    val room2 = listOf(21, 22, 23, 24)
+    val room3 = listOf(31, 32, 33, 34)
+    val room4 = listOf(41, 42, 43, 44)
+    val rooms = listOf(room1, room2, room3, room4)
+    val costs = listOf(1, 10, 100, 1000)
 
 data class State(val numNumbers: Int, val positions: List<Int>) {
 
@@ -97,6 +97,25 @@ data class State(val numNumbers: Int, val positions: List<Int>) {
         val range = minOf(from + 1, to)..maxOf(from - 1, to)
         return !positions.any { pos -> pos in range }
     }
+
+    fun heuristic(): Int {
+        return positions.mapIndexed { i, pos ->
+            val extraDst = i % numNumbers
+            val goalRoom = i / numNumbers
+            if (pos > 10) { // in a room
+                val currentRoom = (pos / 10) - 1
+                if (goalRoom == currentRoom) {
+                    0
+                } else {
+                    val dst = abs(doors[goalRoom] - doors[currentRoom]) + 1 + extraDst + (pos % 10)
+                    costs[goalRoom] * dst
+                }
+            } else { // outside
+                val dst = abs(doors[goalRoom] - pos) + 1 + extraDst
+                costs[goalRoom] * dst
+            }
+        }.sum()
+    }
 }
 
 fun day23_1(lines: List<String>): Any {
@@ -129,8 +148,8 @@ fun day23_1(lines: List<String>): Any {
 
 
     val visited = mutableSetOf<State>()
-    val queue = PriorityQueue<Pair<Int, State>>(Comparator.comparing { it.first })
-    queue.offer(0 to start)
+    val queue = PriorityQueue<Triple<Int, State, Int>>(Comparator.comparing { it.first + it.third })
+    queue.offer(Triple(0, start, start.heuristic()))
 
     var count = 0
 
@@ -149,7 +168,7 @@ fun day23_1(lines: List<String>): Any {
 
         u.second.getPossibleMoves().filterNot { it.second in visited }.forEach { (cost, state) ->
             val totalCost = u.first + cost
-            queue.offer(totalCost to state)
+            queue.offer(Triple(totalCost, state, state.heuristic()))
         }
 
     }
@@ -159,6 +178,7 @@ fun day23_1(lines: List<String>): Any {
 
 
 fun main() {
+    for (i in 0..100)
     run("1", fileName = "day23_dummy.txt", func = ::day23_1)
 }
 
@@ -173,6 +193,12 @@ Copied to clipboard!
 
 Searched: 467459
 Done. Took 5960ms to run
+Result for 1:	46754
+Copied to clipboard!
+
+With A*
+Searched: 303308
+Done. Took 1689ms to run
 Result for 1:	46754
 Copied to clipboard!
 
