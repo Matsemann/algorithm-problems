@@ -5,66 +5,60 @@ import kotlin.math.abs
 
 val hallwayStops = listOf(0, 1, 3, 5, 7, 9, 10)
 val doors = listOf(2, 4, 6, 8)
-val room1 = listOf(11, 12)
-val room2 = listOf(13, 14)
-val room3 = listOf(15, 16)
-val room4 = listOf(17, 18)
+val room1 = listOf(11, 12, 13, 14)
+val room2 = listOf(21, 22, 23, 24)
+val room3 = listOf(31, 32, 33, 34)
+val room4 = listOf(41, 42, 43, 44)
 val rooms = listOf(room1, room2, room3, room4)
 val costs = listOf(1, 10, 100, 1000)
 
-data class State(val positions: List<Int>) {
+data class State(val numNumbers: Int, val positions: List<Int>) {
 
     fun isFinished(): Boolean {
-        return positions[0] in room1
-                && positions[1] in room1
-                && positions[2] in room2
-                && positions[3] in room2
-                && positions[4] in room3
-                && positions[5] in room3
-                && positions[6] in room4
-                && positions[7] in room4
+        return positions.chunked(numNumbers).mapIndexed { i, poses ->
+            poses.all { it in rooms[i] }
+        }.all { it }
     }
 
-    fun getPossibleMoves() : List<Pair<Int, State>> {
+    fun getPossibleMoves(): List<Pair<Int, State>> {
         return positions.indices.flatMap { getMoves(it) }
     }
 
-    private fun getMoves(amphi: Int) : List<Pair<Int, State>> {
+    private fun getMoves(amphi: Int): List<Pair<Int, State>> {
         val pos = positions[amphi]
-        val goalRoom = amphi / 2
+        val goalRoom = amphi / numNumbers
         val goalRoomSpots = rooms[goalRoom]
 
         if (pos > 10) { // in a room
-            // don't make a move if in the correct spot
-//            if (pos in goalRoomSpots) {
-//                if (pos == goalRoomSpots[1]) { // In the back, ok
-//                    return listOf()
-//                } else {
-//                    // In the front, but the one behind is ok
-//                }
-//            }
-
-
-            val isInTheBack = pos % 2 == 0
-            if (isInTheBack) {
-                val isBlocked = positions.any { it == pos - 1 } // fix for 4
-                if (isBlocked) {
+            if (pos in goalRoomSpots) { // don't make a move if in the correct spot
+                // and nothing behind me that should out
+                val range = (pos + 1)..((goalRoom + 1) * 10) + numNumbers
+                val blockedBehind = positions.filterIndexed { i, p -> p in range && i / numNumbers != goalRoom }
+                if (blockedBehind.isEmpty()) {
                     return listOf()
                 }
             }
 
-            val currentRoom = (pos - 11) / 2
+            val potentialBlockages = (pos - (pos % 10) + 1) until pos
+            val isBlocked = positions.any { it in potentialBlockages }
+            if (isBlocked) { // Can't move out
+                return listOf()
+            }
+
+
+            val currentRoom = (pos / 10) - 1
             val entrance = doors[currentRoom]
-            val stepToEntrance = if (isInTheBack) 2 else 1 // fix for 4
+            val stepToEntrance = pos % 10
             val cost = costs[goalRoom]
 
+            // move to all possible hallway spots
             val moves = hallwayStops.mapNotNull { stop ->
-                if (canGoTo(to=stop, from=entrance)) {
+                if (canGoTo(to = stop, from = entrance)) {
                     val dst = abs(entrance - stop)
                     val totalCost = cost * (stepToEntrance + dst)
                     val newState = positions.toMutableList()
                     newState[amphi] = stop
-                    totalCost to State(newState)
+                    totalCost to State(numNumbers, newState)
                 } else {
                     null
                 }
@@ -78,53 +72,74 @@ data class State(val positions: List<Int>) {
             }
 
             val anyoneNotSupposedInTheRoom = positions.filterIndexed { i, amphiPos ->
-                amphiPos in goalRoomSpots && i / 2 != goalRoom // fix for 4
+                amphiPos in goalRoomSpots && i / numNumbers != goalRoom
             }
-
-            if (anyoneNotSupposedInTheRoom.any()) {
+            if (anyoneNotSupposedInTheRoom.any()) { // Too early to go in
                 return listOf()
             }
 
-            val otherIsThereAlready = positions.any {
-                it in goalRoomSpots
-            }
+            val numAlreadyThere = positions.count { it in goalRoomSpots }
 
-            val stepsFromEntrance = if (otherIsThereAlready) 1 else 2 // fix for 4
+            val stepsFromEntrance = numNumbers - numAlreadyThere
             val stepsToEntrance = abs(pos - doorPos)
-            val finalPos = if (otherIsThereAlready) goalRoomSpots[0] else goalRoomSpots[1] // fix for 4
+            val finalPos = goalRoomSpots[numNumbers - numAlreadyThere - 1]
             val cost = costs[goalRoom]
 
             val totalCost = cost * (stepsToEntrance + stepsFromEntrance)
 
             val newState = positions.toMutableList()
             newState[amphi] = finalPos
-            return listOf(totalCost to State(newState))
+            return listOf(totalCost to State(numNumbers, newState))
         }
     }
 
     private fun canGoTo(from: Int, to: Int): Boolean {
-        val range = minOf(from+1, to)..maxOf(from-1, to)
+        val range = minOf(from + 1, to)..maxOf(from - 1, to)
         return !positions.any { pos -> pos in range }
     }
 }
 
 fun day23_1(lines: List<String>): Any {
+    // Ex part1
 //    val startState = listOf(room1[1], room4[1], room1[0], room3[0], room2[0], room3[1], room2[1], room4[0])
-    val startState = listOf(room2[1], room4[0], room1[0], room2[0], room1[1], room4[1], room3[0], room3[1])
+//    val startState = listOf(room1[1], room4[1], room1[0], 3, room2[0], room3[1], room2[1], room4[0])
+//    val start = State(2, startState)
 
+    // Part 1
+//    val startState = listOf(room2[1], room4[0], room1[0], room2[0], room1[1], room4[1], room3[0], room3[1])
+//    val start = State(2, startState)
 
-//    val startState = listOf(room1[1], room4[1], room1[0], 3, 9, room3[1], room2[1], room4[0])
+    // Ex Part 2
+//    val startState = listOf(
+//        room1[3], room3[2], room4[1], room4[3],
+//        room1[0], room2[2], room3[0], room3[1],
+//        room2[0], room2[1], room3[3], room4[2],
+//        room1[1], room1[2], room2[3], room4[0]
+//    )
+//    val start = State(4, startState)
 
-    val start = State(startState)
+    // Part 2
+    val startState = listOf(
+        room2[3], room3[2], room4[0], room4[1],
+        room1[0], room2[0], room2[2], room3[1],
+        room1[3], room2[1], room4[2], room4[3],
+        room1[1], room1[2], room3[0], room3[3],
+    )
+    val start = State(4, startState)
+
 
     val visited = mutableSetOf<State>()
     val queue = PriorityQueue<Pair<Int, State>>(Comparator.comparing { it.first })
     queue.offer(0 to start)
 
+    var count = 0
+
     while (queue.isNotEmpty()) {
+        count++
         val u = queue.poll()
 
         if (u.second.isFinished()) {
+            println("Searched: $count")
             return u.first
         }
         if (u.second in visited) {
@@ -138,44 +153,27 @@ fun day23_1(lines: List<String>): Any {
         }
 
     }
-
-//    val moves = start.getPossibleMoves()
-//
     return "failed"
 
-    // is goal state
-
-    // for each amphipod, generate moves
-    // if inside
-    //      and nothing in front
-    //      move out to all feasible spots
-    //      where feasible is all left/right of entrance not blocked
-    //      costs are moving out + dist from entrance
-    // if outside, only 0 or 1 move possible
-    //      which is going in, or is blocked
 }
 
-
-fun day23_2(lines: List<String>): Any {
-    return 2
-}
 
 fun main() {
-
     run("1", fileName = "day23_dummy.txt", func = ::day23_1)
-//    run("1", fileName = "day23_1.txt", func = ::day23_1)
-//    run("2", fileName = "day23_ex.txt", func = ::day23_2)
-//    run("2", fileName = "day23_1.txt", func = ::day23_2)
 }
 
 /*
 OUTPUT
 ======
 
-Done. Took 27ms to run
-Result for 1:	1462
+Done. Took 2134ms to run
+Result for 1:	11608
+Copied to clipboard!
 
-Done. Took 37ms to run
-Result for 2:	1497
+
+Searched: 467459
+Done. Took 5960ms to run
+Result for 1:	46754
+Copied to clipboard!
 
  */
