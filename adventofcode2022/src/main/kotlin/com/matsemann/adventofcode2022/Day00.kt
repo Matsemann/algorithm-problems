@@ -1,5 +1,6 @@
 package com.matsemann.adventofcode2022
 
+import com.matsemann.adventofcode2022.utils.*
 
 fun day00_1(lines: List<String>): Any {
     lines.forEach { println(it)}

@@ -1,5 +1,7 @@
 package com.matsemann.adventofcode2022
 
+import com.matsemann.adventofcode2022.utils.*
+
 fun day01_1(lines: List<String>): Any {
     return lines
         .splitBy { it == "" }
