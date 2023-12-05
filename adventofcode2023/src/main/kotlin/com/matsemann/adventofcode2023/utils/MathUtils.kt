@@ -4,6 +4,17 @@ import java.math.BigInteger
 import kotlin.math.abs
 import kotlin.math.sqrt
 
+/**
+ * Takes a list of ints and concats them
+ * [5, 4, 13] = 5413
+ */
+fun List<Int>.concat() = this.joinToString(separator = "") { it.toString() }.toInt()
+
+/**
+ * Multiplies all elements in the list together
+ */
+fun List<Int>.product() = this.reduce { acc, current -> acc * current }
+fun List<BigInteger>.product() = this.reduce { acc, current -> acc * current }
 
 /*
 Some utils for making big integer map more smooth

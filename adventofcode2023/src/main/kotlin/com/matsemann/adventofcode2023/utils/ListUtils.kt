@@ -63,4 +63,21 @@ fun <E> List<List<E>>.toMutableList(): MutableList<MutableList<E>> =
 /**
  * If index > end start again from the front
  */
-fun <E> List<E>.circular(index: Int) : E = this[index.mod(this.size)]
+fun <E> List<E>.circular(index: Int): E = this[index.mod(this.size)]
+
+/**
+ * For debugging, prints each element but returns the list so
+ * can be chained.
+ * Use .also {} for debugging the whole list
+ */
+fun <E> List<E>.println(): List<E> {
+    return this.onEach { println(it) }
+}
+
+/**
+ * For debugging, prints each element but returns the list so
+ * can be chained. Returns the original list.
+ */
+fun <E> List<E>.println(toPrint: (E) -> Any): List<E> {
+    return this.onEach { println(toPrint(it)) }
+}

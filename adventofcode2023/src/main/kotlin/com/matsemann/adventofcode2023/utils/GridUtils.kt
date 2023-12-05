@@ -102,6 +102,9 @@ data class IntVec(val x: Int, val y: Int) {
         .filter { it.x != 0 || it.y != 0 }
         .map { this + it }
 
+    fun neighbors9(bounds: IntVec) =
+        neighbors9().filter { it.withinBounds(bounds) }
+
     companion object {
         val zero = IntVec(0, 0)
 
@@ -114,8 +117,12 @@ data class IntVec(val x: Int, val y: Int) {
             return (0..diff).map { this + (dir * it) }
         }
 
-        fun IntVec.allWithinBounds() = (0..x).flatMap { x1 ->
-            (0..y).map { y1 -> IntVec(x1, y1) }
+        /**
+         * Returns all positions inside the grid bounds,
+         * iteration order is line by line
+         */
+        fun IntVec.allWithinBounds() = (0..y).flatMap { y1 ->
+            (0..x).map { x1 -> IntVec(x1, y1) }
         }
 
         fun fromStr(str: String, delim: String = ","): IntVec {
