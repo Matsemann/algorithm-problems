@@ -64,6 +64,7 @@ fun <E> List<List<E>>.toMutableList(): MutableList<MutableList<E>> =
  * If index > end start again from the front
  */
 fun <E> List<E>.circular(index: Int): E = this[index.mod(this.size)]
+fun <E> List<E>.circular(index: Long): E = this[index.mod(this.size)]
 
 /**
  * For debugging, prints each element but returns the list so

@@ -91,6 +91,9 @@ fun <E> combinations(list: List<E>, length: Int? = null): Sequence<List<E>> {
 
 }
 
+@JvmName("combinationsExt")
+fun <E> List<E>.combinations(length: Int? = null) = combinations(this, length)
+
 /**
  * All possible permutations of the list for the given length.
  * If length is not given, the length is the size of the list
