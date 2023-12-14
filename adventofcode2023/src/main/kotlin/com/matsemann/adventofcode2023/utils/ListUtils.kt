@@ -44,6 +44,10 @@ fun <E> List<List<E>>.transpose(): List<List<E>> =
         }
     }
 
+@JvmName("stringlistTransposeExt")
+fun List<String>.transpose(): List<String> =
+    this.map { it.toList() }.transpose().map { it.joinToString("") { c -> c.toString() } }
+
 /**
  * Indexes into a column instead of a row,
  * returns the column as a list.
