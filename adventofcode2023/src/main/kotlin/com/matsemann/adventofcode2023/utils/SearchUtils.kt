@@ -1,5 +1,7 @@
 package com.matsemann.adventofcode2023.utils
 
+import java.util.PriorityQueue
+
 /**
  * A general breadth first search, where you
  * can pass in the neighbor generating function,
@@ -70,9 +72,80 @@ class BFS<E>(val neighborFunc: BFS<E>.(E) -> Iterable<E>) {
 
 }
 
+class Dijkstra<E>(val neighborFunc: Dijkstra<E>.(E) -> Iterable<Pair<E, Long>>) {
+
+    val Q = PriorityQueue<Pair<E, Long>>(compareBy { it.second })
+    val visited = mutableSetOf<E>()
+    val seen = mutableSetOf<E>()
+    var endFound: Pair<E, Long>? = null
+    var parent = mutableMapOf<E, E>()
+
+    fun clear() {
+        Q.clear()
+        seen.clear()
+        visited.clear()
+        parent.clear()
+        endFound = null
+    }
+
+    /**
+     * Runs it, either until it's not possible to go any further,
+     * or if provided until the goal function returns true for a node
+     */
+    fun solve(start: E, goalFunction: (Dijkstra<E>.(E) -> Boolean)? = null): Pair<E, Long>? {
+        clear()
+        Q.add(start to 0)
+        seen.add(start)
+
+        while (Q.isNotEmpty()) {
+            val (currentNode, cost) = Q.remove()
+            if (currentNode in visited) {
+                continue
+            }
+            visited += currentNode
+
+            if (goalFunction != null && this.goalFunction(currentNode)) {
+                endFound = currentNode to cost
+                return endFound
+            }
+
+            val neighbors = this.neighborFunc(currentNode)
+            neighbors.forEach { (neighbor, neighborCost) ->
+                if (neighbor !in visited) {
+                    val totalCost = cost + neighborCost
+                    val currentCost = Q.find { it.first == neighbor }?.second ?: Long.MAX_VALUE
+                    if (totalCost < currentCost) {
+                        parent[neighbor] = currentNode
+                        Q.offer(neighbor to totalCost)
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * After a solve, returns the path from start to the node
+     */
+    fun path(node: E): List<E> {
+        val path = mutableListOf<E>()
+        var current: E? = node
+        while (current != null) {
+            path.addFirst(current)
+            current = parent[current]
+        }
+        return path
+    }
+
+
+}
+
+
 fun main() {
 
     data class Node(val name: String, val neighbors: List<String>)
+
     val nodes = listOf(
         Node("A", listOf("B", "C")),
         Node("B", listOf("A", "C")),

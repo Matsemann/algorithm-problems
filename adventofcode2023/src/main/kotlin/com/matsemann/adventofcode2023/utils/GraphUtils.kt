@@ -29,7 +29,6 @@ class DirectedGraph() : Graph {
     }
 }
 
-class Dijkstra() {}
 class AStar() {}
 class FloydWarshall() {}
 
