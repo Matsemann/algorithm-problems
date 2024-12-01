@@ -34,7 +34,7 @@ fun day03_1(lines: List<String>): Any {
 
 
 fun day03_2(lines: List<String>): Any {
-    val grid = lines.map { it.toList() }
+    val grid = lines.map { it.toList() + '.' }
     val bounds = grid.bounds()
 
     val numbers = mutableListOf<MutableList<IntVec>>()
@@ -58,9 +58,12 @@ fun day03_2(lines: List<String>): Any {
             numbers.filter { number -> number.any { it.neighbors9().any { it == gear } } }
         }
         .filter { neighborNumbers -> neighborNumbers.size == 2 }
+        .also { println(it.size) }
         .map { neighborNumbers ->
-            neighborNumbers.map { number -> number.map { grid[it].digitToInt() }.concat() }.product()
+            neighborNumbers.map { number -> number.map { grid[it].digitToInt() }.concat() }
         }
+        .println()
+        .map { it.product() }
         .sum()
 
 }
@@ -68,9 +71,9 @@ fun day03_2(lines: List<String>): Any {
 fun main() {
 
 //    run("1", fileName = "day03_ex.txt", func = ::day03_1)
-    run("2", fileName = "day03_ex.txt", func = ::day03_2)
+    run("2", fileName = "day03_ex_jonas.txt", func = ::day03_2)
 
 
 //    run("1", fileName = "day03.txt", func = ::day03_1)
-    run("2", fileName = "day03.txt", func = ::day03_2)
+//    run("2", fileName = "day03.txt", func = ::day03_2)
 }

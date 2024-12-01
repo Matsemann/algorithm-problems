@@ -168,6 +168,14 @@ data class IntVec(val x: Int, val y: Int) {
             }
         }
 
+        fun IntVec.showAsGrid(posFunc: (IntVec) -> Char): String {
+            return (0..y).joinToString("\n") { y2 ->
+                (0..x).joinToString("") { x2 ->
+                    posFunc(IntVec(x2, y2)).toString()
+                }
+            }
+        }
+
     }
 }
 

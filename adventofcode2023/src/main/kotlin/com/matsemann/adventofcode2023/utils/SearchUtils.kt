@@ -76,13 +76,11 @@ class Dijkstra<E>(val neighborFunc: Dijkstra<E>.(E) -> Iterable<Pair<E, Long>>) 
 
     val Q = PriorityQueue<Pair<E, Long>>(compareBy { it.second })
     val visited = mutableSetOf<E>()
-    val seen = mutableSetOf<E>()
     var endFound: Pair<E, Long>? = null
     var parent = mutableMapOf<E, E>()
 
     fun clear() {
         Q.clear()
-        seen.clear()
         visited.clear()
         parent.clear()
         endFound = null
@@ -95,7 +93,6 @@ class Dijkstra<E>(val neighborFunc: Dijkstra<E>.(E) -> Iterable<Pair<E, Long>>) 
     fun solve(start: E, goalFunction: (Dijkstra<E>.(E) -> Boolean)? = null): Pair<E, Long>? {
         clear()
         Q.add(start to 0)
-        seen.add(start)
 
         while (Q.isNotEmpty()) {
             val (currentNode, cost) = Q.remove()

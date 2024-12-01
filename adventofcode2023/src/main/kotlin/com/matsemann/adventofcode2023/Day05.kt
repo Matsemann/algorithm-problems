@@ -82,14 +82,46 @@ fun day05_2(lines: List<String>): Any {
 
 }
 
+
+fun day05_2_brute(lines: List<String>): Any {
+    val seedRanges = lines.first().split(" ").longs()
+        .chunked(2).map { it[0]..<it[0]+it[1] }
+    val categories = lines
+        .drop(2)
+        .splitBy { it == "" }
+        .map { maps ->
+            maps.drop(1).map {
+                it.split(" ").longs()
+            }.map { (source, start, num) ->
+                source to start..<start+num
+            }
+        }
+    return seedRanges.map { seedRange ->
+        seedRange.reduce { acc, seed ->
+            val res = categories.fold(seed) { current, mappings ->
+                mappings.find { (mapping, range) ->
+                    current in range
+                }?.let {(mapping, range)->
+                    val diff = current - range.first
+                    val newValue = mapping + diff
+                    newValue
+                } ?: current
+            }
+            min(acc, res)
+        }
+    }.min()
+}
+
 fun main() {
 
 //    run("1", fileName = "day05_ex.txt", func = ::day05_1)
     run("2", fileName = "day05_ex.txt", func = ::day05_2)
+    run("2", fileName = "day05_ex.txt", func = ::day05_2_brute)
 
 
 //    run("1", fileName = "day05.txt", func = ::day05_1)
 //    repeat(400) {
         run("2", fileName = "day05.txt", func = ::day05_2)
+        run("2", fileName = "day05.txt", func = ::day05_2_brute)
 //    }
 }

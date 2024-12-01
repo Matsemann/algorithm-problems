@@ -22,8 +22,8 @@ fun day11_1(lines: List<String>): Any {
 
     return galaxies.combinations(length = 2).map { (g1, g2) ->
         val dst = g1.manhattan(g2).toBigInteger()
-        val expandRow = abs(spaceRows[g2.y] - spaceRows[g1.y]) * (1000000 - 1)
-        val expandCol = abs(spaceCols[g2.x] - spaceCols[g1.x]) *  (1000000 - 1)
+        val expandRow = abs(spaceRows[g2.y] - spaceRows[g1.y])
+        val expandCol = abs(spaceCols[g2.x] - spaceCols[g1.x])
         dst + expandRow + expandCol
     }.sumOf { it }
 

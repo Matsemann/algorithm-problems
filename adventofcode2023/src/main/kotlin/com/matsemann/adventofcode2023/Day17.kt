@@ -27,7 +27,6 @@ fun day17_1(lines: List<String>): Any {
         } else {
             null
         }
-
         listOfNotNull(straight, left, right)
     }
     val res = dijkstra.solve(State(IntVec(0,0), Direction.RIGHT, 0)) { (pos, dir, straights) ->

@@ -89,19 +89,29 @@ fun day10_2(lines: List<String>): Any {
     }
 
     // Simple BFS from S
-    val Q = mutableListOf(sPos)
-    val visited = mutableSetOf<IntVec>()
+    val bfs = BFS<IntVec> { node ->
+        grid[node].map { node + it }
+    }.also { it.solve(sPos) }
+    val visited = bfs.visited
 
-    while (Q.isNotEmpty()) {
-        val currentPos = Q.removeFirst()
-        if (currentPos in visited) {
-            continue
-        }
-        visited += currentPos
-        grid[currentPos].forEach { dir ->
-            Q.add(currentPos + dir)
-        }
-    }
+        // Simple BFS from S
+//    val Q = mutableListOf(sPos)
+//    val visited = mutableSetOf<IntVec>()
+//    var loopCounter = 0
+//    while (Q.isNotEmpty()) {
+//        loopCounter++
+//        val currentPos = Q.removeFirst()
+//        if (currentPos in visited) {
+//            continue
+//        }
+//        visited += currentPos
+//        grid[currentPos].forEach { dir ->
+//            Q.add(currentPos + dir)
+//        }
+//    }
+//    println("loop2")
+//    println(loopCounter)
+
 
     // Do a "point in polygon test" to the right edge, it's inside if count%2==1
     // worst case is stuff like .F-7F-J|  (.┏━┓┏┛┃)
