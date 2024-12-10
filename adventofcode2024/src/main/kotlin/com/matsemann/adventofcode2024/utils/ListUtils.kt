@@ -86,3 +86,5 @@ fun <E> List<E>.println(): List<E> {
 fun <E> List<E>.println(toPrint: (E) -> Any): List<E> {
     return this.onEach { println(toPrint(it)) }
 }
+
+fun infiniteSequence() = generateSequence(0) { it + 1}

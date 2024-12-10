@@ -8,7 +8,7 @@ fun day01_1(lines: List<String>): Any {
     return lines.map {
         it.allInts()
     }.transpose().let {
-        it[0].sorted().zip(it[1].sorted())
+        it[0].sorted() zip it[1].sorted()
     }.sumOf {
         abs(it.second - it.first)
     }

@@ -179,6 +179,15 @@ data class IntVec(val x: Int, val y: Int) {
     }
 }
 
+/**
+ * @return grid to bounds
+ */
+fun List<String>.toGrid(): Pair<List<List<Char>>, IntVec> {
+    val grid = this.map { it.toList() }
+    val bounds = grid.bounds()
+    return grid to bounds
+}
+
 fun <E> List<List<E>>.bounds() = IntVec(this[0].size - 1, this.size - 1)
 
 operator fun <E> List<List<E>>.get(intVec: IntVec) = this[intVec.y][intVec.x]

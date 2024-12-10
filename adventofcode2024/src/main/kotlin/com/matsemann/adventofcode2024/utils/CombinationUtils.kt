@@ -136,6 +136,10 @@ fun <E> permutations(list: List<E>, length: Int? = null): Sequence<List<E>> = se
     }
 }
 
+
+@JvmName("permutationsExt")
+fun <E> List<E>.permutations(length: Int? = null) = permutations(this, length)
+
 operator fun <E> Int.times(list: List<E>): List<List<E>> {
     return List(this) { list }
 }
